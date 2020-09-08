@@ -1,0 +1,28 @@
+{
+  "name": "dnd-tool",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node bin/web"
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "bunyan": "^1.8.14",
+    "bunyan-debug-stream": "^2.0.0",
+    "bunyan-middleware": "^1.0.0",
+    "cookie-parser": "~1.4.4",
+    "cookie-session": "^1.4.0",
+    "crypto-js": "^4.0.0",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "express-session": "^1.17.1",
+    "helmet": "^4.1.0",
+    "http-errors": "~1.6.3",
+    "pg": "^8.3.3",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.5",
+    "sequelize-date-no-tz-postgres": "^1.0.0",
+    "sequelize-time-no-tz-postgres": "^1.0.0",
+    "vash": "~0.12.6"
+  }
+}
