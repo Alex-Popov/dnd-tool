@@ -2,15 +2,12 @@
 
 const config = require('config');
 const path = require('path');
+const express = require('express');
+const helmet = require('helmet');
 const logger = require('logger');
 const bunyanMiddleware = require('bunyan-middleware');
-const express = require('express');
-const httpError = require('http-errors');
-const cookieParser = require('cookie-parser');
-//const cookieSession = require('cookie-session');
 const session = require('express-session');
-const helmet = require('helmet');
-
+const cookieParser = require('cookie-parser');
 const api = require('api');
 
 
@@ -50,8 +47,9 @@ app.use(session({
     }
 }));
 
-app.use(function(req, res, next) {
-    console.log('userId', req.session.userId+'');
+
+api.use(function(req, res, next) {
+    console.log('userId', req.session.user ? req.session.user.id : '');
     next();
 });
 
@@ -60,19 +58,17 @@ app.use(function(req, res, next) {
 app.use('/api', api);
 
 // all other routs to index
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
     res.render('index');
 });
 
 
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
+//    if (!res.headersSent) {
     res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: (config.IS_PROD ? {} : err)
-    });
+    res.send(typeof err === 'string' ? err : err.message);
 });
 
 module.exports = app;

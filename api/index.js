@@ -2,29 +2,19 @@
 
 const express = require('express');
 const httpError = require('http-errors');
+const { OperationResults, promiseHandler } = require('./operation-results');
+const { authenticate, logout, authorizeMiddlewareFactory } = require('auth');
+
 const User = require('../entities/user');
-/*
-(async () => {
-    await User.upsert({
-        id: 2,
-        username: 'user 1->4',
-        changedPasswordDate: new Date()
-    });
-    await User.upsert({
-        username: 'user 3',
-        changedPasswordDate: new Date()
-    });
-})();
-*/
-/*
-const username = 'user3';
-User.setPassword(username, '222', '66666')
-    .then(d => console.log(username, d))
-    .catch(e => console.log(username, e));
-User.login(username, '66666')
-    .then(d => console.log(username, d))
-    .catch(e => console.log(username, e));
-*/
+
+
+
+//
+// permission checkers
+//
+const mustAuthenticated = authorizeMiddlewareFactory(),
+      isAdmin = authorizeMiddlewareFactory('admin');
+
 
 //
 // init Router for all /api/ requests
@@ -32,37 +22,61 @@ User.login(username, '66666')
 const router = express.Router();
 
 
-// middleware that is specific to this router
-/*router.use(function(req, res, next) {
-    console.log('Time: ', Date.now());
-    next();
-});*/
-
-router.get('/login/:username/:password', function(req, res, next) {
-    User.login(req.params.username, req.params.password)
-        .then(user => {
-            req.session.userId = user.id;
-            res.send(user);
+//
+// login/
+//
+router.get('/login/:username/:password', (req, res) => {
+    User.findByUsernameAndPassword(req.params.username, req.params.password)
+        .then(async user => {
+            if (user) {
+                await authenticate(req.session, user);
+                return new OperationResults(true, 'You\'ve logged in successfully');
+            } else {
+                return new OperationResults(false, 'Invalid username or password');
+            }
         })
-        .catch(next);
+        .catch(promiseHandler)
+        .then(res.send.bind(res));
 });
 
-router.get('/users', function(req, res, next) {
+router.all('/logout', (req, res) => {
+    logout(req.session)
+        .then(() => {
+            return new OperationResults(true, 'You\'ve logged out in successfully');
+        })
+        .catch(promiseHandler)
+        .then(res.send.bind(res));
+});
+
+
+//
+// user/
+//
+router.get('/users', mustAuthenticated, (req, res) => {
     User.findAll()
-        .then(res.send.bind(res))
-        .catch(next);
+        .then(promiseHandler)
+        .catch(promiseHandler)
+        .then(res.send.bind(res));
 });
 
-router.get('/user/:id', function(req, res, next) {
+router.get('/user/:id', isAdmin, (req, res) => {
     User.findByPk(req.params.id)
-        .then(res.send.bind(res))
-        .catch(next);
+        .then(promiseHandler)
+        .catch(promiseHandler)
+        .then(res.send.bind(res));
 });
 
-// 404 for api
-router.use(function(req, res, next) {
+
+//
+// api/* - 404
+//
+router.use((req, res, next) => {
     next(httpError(404));
 });
+
+
+
+
 
 
 module.exports = router;

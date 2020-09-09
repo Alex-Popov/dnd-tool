@@ -33,12 +33,7 @@ sequelize.sync()
         logger.info('All models were synchronized successfully.');
     })
     .catch(logger.error);
-/*
-(async () => {
-    await sequelize.sync({ force: true });
-    // Code here
-})();
-*/
+
 //
 // data types
 //
