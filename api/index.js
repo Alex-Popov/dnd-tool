@@ -25,8 +25,8 @@ const router = express.Router();
 //
 // login/
 //
-router.get('/login/:username/:password', (req, res) => {
-    User.findByUsernameAndPassword(req.params.username, req.params.password)
+router.post('/login', (req, res) => {
+    User.findByUsernameAndPassword(req.body.username, req.body.password)
         .then(async user => {
             if (user) {
                 await authenticate(req.session, user);

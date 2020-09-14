@@ -16,12 +16,16 @@ const api = require('api');
 //
 const app = express();
 
+
 // view engine setup
 app.set('views', path.join(__dirname, 'html'));
 app.set('view engine', 'vash');
 
-// middleware functions
-app.use(helmet());
+// helmet
+if (config.IS_PROD) // disable for local network
+    app.use(helmet());
+
+// log all requests
 app.use(bunyanMiddleware({logger}));
 
 // static
@@ -29,8 +33,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 //app.use(express.static('uploads'));
 //app.use(express.static('files'));
 
-// data
-app.use(express.json());
+// parsing data
+app.use(express.json()); // == body
 app.use(express.urlencoded({ extended: false }));
 
 // session
@@ -48,8 +52,8 @@ app.use(session({
 }));
 
 
-api.use(function(req, res, next) {
-    console.log('userId', req.session.user ? req.session.user.id : '');
+app.use((req, res, next) => {
+    console.log('userId', req.session.user ? req.session.user.id +' : '+req.session.user.username : '');
     next();
 });
 
@@ -59,7 +63,9 @@ app.use('/api', api);
 
 // all other routs to index
 app.use((req, res, next) => {
-    res.render('index');
+    res.render('index', {
+        userName : req.session.user ? req.session.user.username : ''
+    });
 });
 
 
