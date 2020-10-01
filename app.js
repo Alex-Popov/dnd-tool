@@ -17,10 +17,6 @@ const api = require('api');
 const app = express();
 
 
-// view engine setup
-app.set('views', path.join(__dirname, 'html'));
-app.set('view engine', 'vash');
-
 // helmet
 if (config.IS_PROD) // disable for local network
     app.use(helmet());
@@ -29,9 +25,8 @@ if (config.IS_PROD) // disable for local network
 app.use(bunyanMiddleware({logger}));
 
 // static
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'client/build/')));
 //app.use(express.static('uploads'));
-//app.use(express.static('files'));
 
 // parsing data
 app.use(express.json()); // == body
@@ -61,11 +56,9 @@ app.use((req, res, next) => {
 // api routs
 app.use('/api', api);
 
-// all other routs to index
+// all other routs to index.html from client build
 app.use((req, res, next) => {
-    res.render('index', {
-        userName : req.session.user ? req.session.user.username : ''
-    });
+    res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
 
 
