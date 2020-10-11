@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "cross-env NODE_PATH=. node bin/web"
+    "web": "cross-env NODE_PATH=. node bin/web"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",

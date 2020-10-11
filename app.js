@@ -48,7 +48,8 @@ app.use(session({
 
 
 app.use((req, res, next) => {
-    console.log('userId', req.session.user ? req.session.user.id +' : '+req.session.user.username : '');
+    console.log('session: ', req.session.id);
+    console.log('user: ', req.session.user ? req.session.user.id +' | '+req.session.user.username : '');
     next();
 });
 

@@ -1,23 +1,23 @@
 import React from 'react';
+import API from './core/api';
+import { AuthContext } from "./components/Auth";
 
-function App() {
-    return (
-        <div className="App">
-            <header className="App-header">
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.1233232
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
-        </div>
-    );
+const getUsers = () => {
+    API.user.getAll()
+        .then(data => console.log(data))
+        .catch(error => {})
 }
 
-export default App;
+
+export default class App extends React.Component {
+    static contextType = AuthContext;
+
+    render() {
+        return (
+            <div className="app">
+                <h1>[App Body]</h1>
+                <button onClick={getUsers}>Get Users</button>
+            </div>
+        );
+    }
+}

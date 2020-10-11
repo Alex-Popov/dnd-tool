@@ -14,10 +14,10 @@ class User extends Model {
         let user = await this.findByUsername(username);
 
         // invalid username
-        if (!user) return null;
+        if (!user) throw new Error('Invalid username');
 
         // validate password
-        if (!bcrypt.compareSync(password, user.password)) return null;
+        if (!bcrypt.compareSync(password, user.password)) throw new Error('Invalid password');
 
         return user;
     }
@@ -25,10 +25,10 @@ class User extends Model {
         let user = await this.findByUsername(username);
 
         // invalid username
-        if (!user) return null;
+        if (!user) throw new Error('Invalid username');
 
         // validate password
-        if (user.password && !bcrypt.compareSync(oldPassword, user.password)) return null;
+        if (user.password && !bcrypt.compareSync(oldPassword, user.password)) throw new Error('Invalid password');
 
         // set fields and save
         user.password = bcrypt.hashSync(newPassword, 10);
