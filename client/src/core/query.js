@@ -1,6 +1,6 @@
 /*import EM from './event-emitter.js';
 import {PUSH} from '../components/alert-emitter/events';*/
-import { logout } from '../components/Auth';
+import { logout } from '../auth';
 
 //import LocalStorage from './local-storage';
 

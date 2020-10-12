@@ -12,6 +12,7 @@ export default {
     },
     user: {
         getAll: () => Get('/api/user/getAll'),
-        getById: id => Get('/api/user/getById', {id})
+        getById: id => Get('/api/user/getById', {id}),
+        getCurrent: () => Get('/api/user/getCurrent'),
     }
 };

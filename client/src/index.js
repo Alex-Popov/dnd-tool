@@ -1,34 +1,29 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import Auth, { AuthContext, logout } from './components/Auth';
-import LoginForm from './pages/LoginForm';
-import API from './core/api';
 
-const handleLogout = () => {
-    API.auth.logout()
-        .then(() => logout())
-        .catch(() => {});
-}
+import Auth from './auth';
+import App from './App';
+import LoginForm from './pages/LoginForm';
+import 'materialize-css/dist/css/materialize.min.css';
+
 
 ReactDOM.render(
     <React.StrictMode>
-        <Auth>
-            <AuthContext.Consumer>
+        <Auth.Provider>
+            <Auth.Context.Consumer>
                 {(context) => (
                     <>
                         <div className="header">
                             <div>Logged: {context.isAuthenticated.toString()}</div>
                             <div>User Id: {context.userId}</div>
                             <div>Session: {context.sessionId}</div>
-                            {context.isAuthenticated && <button onClick={handleLogout}>Logout</button>}
                         </div>
                         <hr/><br/>
                         {context.isAuthenticated ? <App /> : <LoginForm />}
                     </>
                 )}
-            </AuthContext.Consumer>
-        </Auth>
+            </Auth.Context.Consumer>
+        </Auth.Provider>
     </React.StrictMode>,
     document.getElementById('root')
 );

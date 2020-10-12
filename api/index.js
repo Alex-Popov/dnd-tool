@@ -2,21 +2,69 @@
 
 const express = require('express');
 const httpError = require('http-errors');
-const { OperationResults, promiseHandler } = require('./operation-results');
+
+const OperationResults = require('./operation-results');
 const { authenticate, logout, authorizeMiddlewareFactory } = require('auth');
 
-const User = require('../entities/user');
+const { User, ROLE_ADMIN, ROLE_USER } = require('../entities/user');
 
-/*User.setPassword('admin', '', 'sdfcvb3613').then();
+/*
+(async () => {
+    try {
+        await User.create({
+            username: 'user2',
+            password: '111',
+            role: ROLE_USER
+        });
+    } catch (e) {
+        console.log(e);
+    }
+})();
+*/
+/*
+User.setPassword('admin', '', 'sdfcvb3613').then();
 User.setPassword('user1', '', '111').then();
-User.setPassword('user2', '', '111').then();
-User.setPassword('user3', '', '111').then();*/
+*/
 
 //
 // permission checkers
 //
 const mustAuthenticated = authorizeMiddlewareFactory(),
-      isAdmin = authorizeMiddlewareFactory('admin');
+      isAdmin = authorizeMiddlewareFactory(ROLE_ADMIN);
+
+
+//
+// helpers
+//
+const clientSessionWrapper = (session) => ({
+    sessionId: session.id,
+    userId: session.user.id,
+    userRole: session.user.role
+});
+
+const promiseHandler = (isSuccessful, messages, data) => {
+    // only first argument provided - Promise case
+    if (messages === undefined && data === undefined) {
+        // error, no messages, error = isSuccessful - .catch() case
+        if (isSuccessful instanceof Error) {
+            return new OperationResults(false, isSuccessful.message);
+
+            // success, no messages, data = isSuccessful - .then() case
+        } else {
+            return new OperationResults(true, '', isSuccessful);
+        }
+
+        // All arguments provided, manual creation case
+    } else {
+        return new OperationResults(isSuccessful, messages, data);
+    }
+}
+
+const bindDataToRes = (res, dataProviderPromise) => {
+    dataProviderPromise
+        .then(promiseHandler, promiseHandler)
+        .then(res.send.bind(res));
+}
 
 
 //
@@ -25,71 +73,46 @@ const mustAuthenticated = authorizeMiddlewareFactory(),
 const router = express.Router();
 
 
-//
 // auth/
-//
-router.post('/auth/login', (req, res) => {
+
+router.get('/auth/autoLogin', mustAuthenticated, (req, res) => res.send(
+    new OperationResults(true, '', clientSessionWrapper(req.session))
+));
+router.post('/auth/login', (req, res) => bindDataToRes(res,
     User.findByUsernameAndPassword(req.body.username, req.body.password)
         .then(async user => {
             await authenticate(req.session, user);
-            return new OperationResults(true, 'You\'ve logged in successfully', {
-                sessionId: req.session.id,
-                userId: req.session.user.id
-            });
+            return clientSessionWrapper(req.session);
         })
-        .catch(promiseHandler)
-        .then(res.send.bind(res));
-});
-router.all('/auth/logout', (req, res) => {
+));
+router.all('/auth/logout', (req, res) => bindDataToRes(res,
     logout(req.session)
-        .then(() => new OperationResults(true, 'You\'ve logged out successfully'))
-        .catch(promiseHandler)
-        .then(res.send.bind(res));
-});
-router.post('/auth/changePassword', mustAuthenticated, (req, res) => {
+));
+router.post('/auth/changePassword', mustAuthenticated, (req, res) => bindDataToRes(res,
     User.setPassword(req.session.user.username, req.body.oldPassword, req.body.newPassword)
-        .then(() => new OperationResults(true, 'Your password have been changed successfully'))
-        .catch(promiseHandler)
-        .then(res.send.bind(res));
-});
-router.get('/auth/autoLogin', mustAuthenticated, (req, res) => {
-    res.send(
-        new OperationResults(true, '', {
-            sessionId: req.session.id,
-            userId: req.session.user.id
-        })
-    );
-});
+));
 
 
 
-//
 // user/
-//
-router.get('/user/getAll', isAdmin, (req, res) => {
+
+router.get('/user/getAll', isAdmin, (req, res) => bindDataToRes(res,
     User.findAll()
-        .then(promiseHandler)
-        .catch(promiseHandler)
-        .then(res.send.bind(res));
-});
-
-router.get('/user/getById', isAdmin, (req, res) => {
+));
+router.get('/user/getById', isAdmin, (req, res) => bindDataToRes(res,
     User.findByPk(req.query.id)
-        .then(promiseHandler)
-        .catch(promiseHandler)
-        .then(res.send.bind(res));
-});
+));
+router.get('/user/getCurrent', mustAuthenticated, (req, res) => bindDataToRes(res,
+    User.findByPk(req.session.user.id)
+));
 
 
-//
+
 // api/* - 404
-//
+
 router.use((req, res, next) => {
     next(httpError(404));
 });
-
-
-
 
 
 

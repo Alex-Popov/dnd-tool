@@ -1,6 +1,8 @@
 const { sequelize, DataTypes } = require('db');
 const { Deferrable, Model } = require('sequelize');
 const bcrypt = require('bcrypt');
+const { ROLE_ADMIN, ROLE_USER } = require('../client/src/auth/roles');
+
 
 class User extends Model {
     static findByUsername(username) {
@@ -31,7 +33,7 @@ class User extends Model {
         if (user.password && !bcrypt.compareSync(oldPassword, user.password)) throw new Error('Invalid password');
 
         // set fields and save
-        user.password = bcrypt.hashSync(newPassword, 10);
+        user.password = newPassword;
         return user.save();
     }
 }
@@ -51,14 +53,24 @@ User.init({
     password: {
         type: DataTypes.STRING,
         set(value) {
-            this.setDataValue('password', value);
+            this.setDataValue('password', bcrypt.hashSync(value, 10) );
+
             this.setDataValue('changedDate', new Date());
             this.setDataValue('changedPasswordDate', new Date());
             //this.setDataValue('changedBy', 1);
         }
     },
-    salt: {
+    /*salt: {
         type: DataTypes.STRING
+    },*/
+    /*roleEnum: {
+        type: DataTypes.ENUM([ROLE_ADMIN, ROLE_USER])
+    },*/
+    role: {
+        type: DataTypes.STRING,
+        validate: {
+            isIn: [[ROLE_ADMIN, ROLE_USER]]
+        }
     },
     changedDate: {
         type: DataTypes.DATE_NO_TZ,
@@ -67,7 +79,7 @@ User.init({
     },
     changedPasswordDate: {
         type: DataTypes.DATE_NO_TZ
-    },
+    }/*,
     changedBy: {
         type: DataTypes.INTEGER,
         references: {
@@ -75,11 +87,15 @@ User.init({
             key: 'id',
             deferrable: Deferrable.NOT
         }
-    }
+    }*/
 }, {
     sequelize,
     modelName: 'User',
     timestamps: false
 });
 
-module.exports = User;
+module.exports = {
+    User,
+    ROLE_ADMIN,
+    ROLE_USER
+};

@@ -28,7 +28,7 @@ const sequelize = new Sequelize({
 //
 // check connection and sync
 //
-sequelize.sync()
+sequelize.sync(/*{force:true}*/)
     .then(() => {
         logger.info('All models were synchronized successfully.');
     })
