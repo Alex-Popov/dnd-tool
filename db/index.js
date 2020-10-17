@@ -26,19 +26,9 @@ const sequelize = new Sequelize({
 });
 
 //
-// check connection and sync
-//
-sequelize.sync(/*{force:true}*/)
-    .then(() => {
-        logger.info('All models were synchronized successfully.');
-    })
-    .catch(logger.error);
-
-//
 // data types
 //
 const DataTypes = withTimeNoTz(withDateNoTz(SequelizeDataTypes));
-
 
 
 module.exports = {

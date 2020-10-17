@@ -7,24 +7,9 @@ const OperationResults = require('./operation-results');
 const { authenticate, logout, authorizeMiddlewareFactory } = require('auth');
 
 const { User, ROLE_ADMIN, ROLE_USER } = require('../entities/user');
+const Category = require('../entities/category');
+const Post = require('../entities/post');
 
-/*
-(async () => {
-    try {
-        await User.create({
-            username: 'user2',
-            password: '111',
-            role: ROLE_USER
-        });
-    } catch (e) {
-        console.log(e);
-    }
-})();
-*/
-/*
-User.setPassword('admin', '', 'sdfcvb3613').then();
-User.setPassword('user1', '', '111').then();
-*/
 
 //
 // permission checkers
@@ -105,6 +90,40 @@ router.get('/user/getById', isAdmin, (req, res) => bindDataToRes(res,
 router.get('/user/getCurrent', mustAuthenticated, (req, res) => bindDataToRes(res,
     User.findByPk(req.session.user.id)
 ));
+router.post('/user/deleteById', isAdmin, (req, res) => bindDataToRes(res,
+    Category.destroy({
+        where: {
+            id: req.body.id
+        }
+    })
+));
+
+
+
+// category/
+
+router.get('/category/getAll', mustAuthenticated, (req, res) => bindDataToRes(res,
+    Category.findAll()
+));
+router.get('/category/getById', mustAuthenticated, (req, res) => bindDataToRes(res,
+    Category.findByPk(req.query.id)
+));
+router.get('/category/getAllByParentId', mustAuthenticated, (req, res) => bindDataToRes(res,
+    Category.build({ id: req.query.id }).getChildCategory()
+));
+router.post('/category/save', mustAuthenticated, (req, res) => bindDataToRes(res,
+    Category.upsert({// values
+        id: req.body.id || null,
+        parentId: req.body.parentId || null,
+        name: req.body.name,
+        color: req.body.color
+    })
+));
+router.post('/category/deleteById', mustAuthenticated, (req, res) => bindDataToRes(res,
+    Category.build({ id: req.body.id }).destroy()
+));
+
+
 
 
 

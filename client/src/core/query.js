@@ -1,8 +1,5 @@
-/*import EM from './event-emitter.js';
-import {PUSH} from '../components/alert-emitter/events';*/
 import { logout } from '../auth';
-
-//import LocalStorage from './local-storage';
+import LocalStorage from './local-storage';
 
 
 
@@ -77,7 +74,6 @@ export const Query = (
     //
     // process caching
     //
-    /*
     if (method === 'GET' && cacheType) {
         let cachedData = null;
         if (cacheType === 'session') {
@@ -90,7 +86,7 @@ export const Query = (
         if (cachedData) {
             return Promise.resolve(cachedData);
         }
-    }*/
+    }
 
 
     return fetch(url, init)
@@ -123,14 +119,14 @@ export const Query = (
             if (json.isSuccessful) {
 
                 // process caching
-                /*if (method === 'GET' && cacheType) {
+                if (method === 'GET' && cacheType) {
                     if (cacheType === 'session') {
                         LocalStorage.setSessionCache(url, json.data);
                     }
                     if (typeof cacheType === 'object') {
                         LocalStorage.setDatedCache(url, json.data);
                     }
-                }*/
+                }
 
                 return json.data;
 

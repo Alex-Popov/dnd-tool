@@ -44,7 +44,7 @@ export const AuthStore = createStore(authReducer);
 //
 // Api
 //
-export const login = (sessionId, userId, userRole) => {
+export const login = ({sessionId, userId, userRole}) => {
     if (!sessionId || !userId) logout();
 
     AuthStore.dispatch({
@@ -79,7 +79,7 @@ export class AuthProvider extends React.Component {
         // auto login
         //if (this.state.isAuthenticated)
         API.auth.autoLogin()
-            .then(({sessionId, userId}) => login(sessionId, userId))
+            .then(login)
             .catch(() => {})
     }
     componentWillUnmount() {
