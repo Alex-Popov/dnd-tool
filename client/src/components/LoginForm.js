@@ -1,65 +1,65 @@
-import React from 'react';
+import React, { useState} from 'react';
 import API from '../core/api';
-import Auth from '../auth';
+import { useDispatch } from 'react-redux';
+import { setSession } from '../store/auth';
 
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import { showLoading, hideLoading } from '../store/loading';
 
 
 
-export default class LoginForm extends React.Component {
-    state = {
-        username: '',
-        password: ''
-    };
-    handleChange = (e) => {
-        this.setState({[e.target.name]: e.target.value});
-    }
-    handleSubmit = (e) => {
+function LoginForm() {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const dispatch = useDispatch();
+
+    const disableSave = !username || !password;
+
+    const handleSubmit = e => {
         e.preventDefault();
 
-        API.auth.login(this.state.username, this.state.password)
-            .then(Auth.login)
+        dispatch(showLoading());
+        API.auth.login(username, password)
+            .then(({sessionId, userId, userRole}) => dispatch(setSession(sessionId, userId, userRole)))
             .catch(e => {})
-    }
+            .finally(() => dispatch(hideLoading()))
+    };
 
-    render() {
-        return (
-            <form onSubmit={this.handleSubmit}>
-                <TextField
-                    label="Username"
-                    name="username"
-                    value={this.state.username}
-                    onChange={this.handleChange}
-                    required
+    return (
+        <form onSubmit={handleSubmit}>
+            <TextField
+                label="Username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                required
 
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                />
-                <TextField
-                    type="password"
-                    label="Password"
-                    name="password"
-                    value={this.state.password}
-                    onChange={this.handleChange}
-                    required
+                variant="outlined"
+                margin="normal"
+                fullWidth
+            />
+            <TextField
+                type="password"
+                label="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
 
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                />
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    disabled={!this.state.username || !this.state.password}
-                >
-                    Login
-                </Button>
-            </form>
-        );
-    }
+                variant="outlined"
+                margin="normal"
+                fullWidth
+            />
+            <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                disabled={disableSave}
+            >
+                Login
+            </Button>
+        </form>
+    );
 }
 
+export default LoginForm;

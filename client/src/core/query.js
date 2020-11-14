@@ -1,5 +1,7 @@
-import { logout } from '../auth';
+import { markSessionAsExpired } from '../store/auth';
 import LocalStorage from './local-storage';
+import store from './store';
+import { addErrorAlert } from '../store/alerts';
 
 
 
@@ -21,9 +23,10 @@ export const Query = (
     method = 'GET',
     url,
     data,
-    {
+    { // options
         cacheType = false,
-        printErrorMessages = true
+        printErrorMessages = true,
+        catchSessionExpiration = true
     } = {}
 ) => {
 
@@ -98,8 +101,10 @@ export const Query = (
                 return response.json();
 
             } else {
-                // auto logout -> open login form
-                if (response.status == 401) logout();
+                // catch in request return 401
+                if (catchSessionExpiration && response.status === 401) {
+                    store.dispatch(markSessionAsExpired());
+                }
 
                 // create error wrapper
                 throw {
@@ -115,7 +120,6 @@ export const Query = (
         // process business logic response
         //
         .then(json => {
-            console.log(url, json);
             if (json.isSuccessful) {
 
                 // process caching
@@ -146,12 +150,9 @@ export const Query = (
             if (printErrorMessages) {
                 console.error('catch in query', error);
 
-                /*error.messages.forEach((m) => {
-                    EM.$emit(PUSH, {
-                        type: 'error',
-                        message: `<h2 class="slds-text-heading_small">`+i18n.tdef('ERROR', 'label.common.error-title')+`</h2><p>${m}</p>`
-                    });
-                });*/
+                error.messages.forEach(m => {
+                    store.dispatch(addErrorAlert(m));
+                });
             }
 
             throw error;

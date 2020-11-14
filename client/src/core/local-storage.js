@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
-import Auth from '../auth';
-
+import store from './store';
+import { selectSessionId } from '../store/auth';
 
 //
 // helpers
@@ -79,13 +79,13 @@ function setVersionedCache(key, v, value) {
 //
 
 function getSessionCache(key) {
-    const { sessionId } = Auth.Store.getState();
+    const sessionId = selectSessionId(store.getState());
     if (!checkLocalStorage() || !sessionId) return null;
 
     return getVersionedCache(key, sessionId);
 }
 function setSessionCache(key, value) {
-    const { sessionId } = Auth.Store.getState();
+    const sessionId = selectSessionId(store.getState());
     if (!checkLocalStorage() || !sessionId) return null;
 
     setVersionedCache(key, sessionId, value);

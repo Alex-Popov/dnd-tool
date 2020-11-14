@@ -34,27 +34,27 @@ Category.init({
 // Relations
 //
 Category.hasMany(Category, {
-    as: 'ChildCategory',
+    as: 'childCategories',
     foreignKey: 'parentId',
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
     useJunctionTable: false
 });
 /*
-.getChildCategory()
-.countChildCategory()
-.hasChildCategory()
-.hasChildCategory([])
-.setChildCategory()
-.addChildCategory()
-.addChildCategory([])
-.removeChildCategory()
-.removeChildCategory([])
-.createChildCategory()
+.getChildCategories()
+.countChildCategories()
+.hasChildCategories()
+.hasChildCategories([])
+.setChildCategories()
+.addChildCategories()
+.addChildCategories([])
+.removeChildCategories()
+.removeChildCategories([])
+.createChildCategories()
 */
 
 Category.belongsTo(Category, {
-    as: 'ParentCategory',
+    as: 'parentCategory',
     foreignKey: 'parentId'
 });
 /*

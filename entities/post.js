@@ -21,7 +21,7 @@ Post.init({
         type: DataTypes.TEXT
     },
     date: {
-        type: DataTypes.DATE_NO_TZ,
+        type: DataTypes.DATEONLY,
         allowNull: false,
         defaultValue: DataTypes.NOW
     }
@@ -37,36 +37,36 @@ Post.init({
 //
 Category.belongsToMany(Post, {
     through: 'PostToCategory',
-    as: 'Post'
+    as: 'posts'
 });
 /*
-.getPost()
-.countPost()
-.hasPost()
-.hasPost([])
-.setPost()
-.addPost()
-.addPost([])
-.removePost()
-.removePost([])
-.createPost()
+.getPosts()
+.countPosts()
+.hasPosts()
+.hasPosts([])
+.setPosts()
+.addPosts()
+.addPosts([])
+.removePosts()
+.removePosts([])
+.createPosts()
 */
 
 Post.belongsToMany(Category, {
     through: 'PostToCategory',
-    as: 'Category'
+    as: 'categories'
 });
 /*
-.getCategory()
-.countCategory()
-.hasCategory()
-.hasCategory([])
-.setCategory()
-.addCategory()
-.addCategory([])
-.removeCategory()
-.removeCategory([])
-.createCategory()
+.getCategories()
+.countCategories()
+.hasCategories()
+.hasCategories([])
+.setCategories()
+.addCategories()
+.addCategories([])
+.removeCategories()
+.removeCategories([])
+.createCategories()
 */
 
 

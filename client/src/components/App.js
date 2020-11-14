@@ -1,58 +1,40 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { ThemeProvider } from '@material-ui/core/styles';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import { loadCategories } from '../store/categories';
+import { loadPostDates } from '../store/postDates';
 
-import Auth from '../auth';
-
-import Login from '../pages/Login/Login';
-import Tester from '../pages/Tester';
 import Header from './Header';
-import Post from '../pages/Post';
+import CategoryEditor from './CategoryEditor';
+
+import Profile from '../pages/Profile';
 import Editor from '../pages/Editor';
 import Wall from '../pages/Wall';
-import Sections from '../pages/Sections';
 
 
-import theme from '../theme';
+function App() {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(loadCategories());
+        dispatch(loadPostDates());
+    }, [dispatch]);
 
 
-export default function App() {
     return (
-        <React.StrictMode>
-            <ThemeProvider theme={theme.config}>
-                <CssBaseline />
-                <Auth.Provider>
-                    <Auth.Context.Consumer>
-                        {({isAuthenticated}) => !isAuthenticated
-                            ? <Login />
-                            : <Router>
-                                <Header />
+        <Router>
+            <Header />
+            <CategoryEditor />
 
-                                <Switch>
-                                    <Route path="/new" exact>
-                                        <Editor />
-                                    </Route>
-                                    <Route path="/edit/:id" exact>
-                                        <Editor />
-                                    </Route>
-                                    <Route path="/post/:id" exact>
-                                        <Post />
-                                    </Route>
-                                    <Route path="/sections" exact>
-                                        <Sections />
-                                    </Route>
-                                    <Route path="/" exact>
-                                        <Tester />
-                                    </Route>
-                                    <Redirect to="/" />
-                                </Switch>
-                            </Router>
-                        }
-                    </Auth.Context.Consumer>
-                </Auth.Provider>
-            </ThemeProvider>
-        </React.StrictMode>
+            <Switch>
+                <Route path="/profile" exact component={Profile} />
+                <Route path={['/new', '/edit/:id']} exact component={Editor} />
+                <Route path={['/', '/post/:id']} exact component={Wall} />
+                <Redirect to="/" />
+            </Switch>
+        </Router>
     );
 }
+
+export default App;

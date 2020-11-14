@@ -22,17 +22,19 @@ const initTables = async () => {
             role: ROLE_USER
         });
         // categories
-        let Eat = await Category.create({name: 'Еда'});
-        let Hobby = await Category.create({name: 'Хобби'});
-        let Sex = await Category.create({name: 'Секс'});
-        await Eat.createChildCategory({name: 'Рецепты'});
-        await Eat.createChildCategory({name: 'Посуда'});
-        await Eat.createPost({title: 'Фоточки'});
-        await Eat.createPost({title: 'Приправы'});
+        let Eat = await Category.create({name: 'Еда', color: '#00ab00'});
+        let Hobby = await Category.create({name: 'Хобби', color: '#8f4f0e'});
+        let Sex = await Category.create({name: 'Секс', color: '#ec4949'});
 
+        await Eat.createPost({title: 'Торт с начинкой их слез твоих врагов', date:'2020-05-12'});
+        await Eat.createPost({title: 'Хот Дог из кошки', body: 'Жуй!', date:'2020-04-21'});
+        await Hobby.createPost({title: 'Милый бычок крючком с глазами', date:'2020-07-18'});
+        await Sex.createPost({title: 'Оргазм как у 18летней', date:'2020-07-12'});
+        await Hobby.createPost({title: 'Вязание с закрытыми глазами. Практика', date:'2020-10-01'});
+        await Hobby.createPost({title: 'Примеры работ', date:'2020-05-12'});
 
         //console.log(await Eat.getPost());
-        //console.log(await Post.build({id:1}).getCategory());
+        //console.log(Post.build({id:1}).getCategory);
 
         //await Sex.addChildCategory([Eat]);
 

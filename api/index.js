@@ -2,6 +2,7 @@
 
 const express = require('express');
 const httpError = require('http-errors');
+const { Op } = require("sequelize");
 
 const OperationResults = require('./operation-results');
 const { authenticate, logout, authorizeMiddlewareFactory } = require('auth');
@@ -122,6 +123,106 @@ router.post('/category/save', mustAuthenticated, (req, res) => bindDataToRes(res
 router.post('/category/deleteById', mustAuthenticated, (req, res) => bindDataToRes(res,
     Category.build({ id: req.body.id }).destroy()
 ));
+
+
+
+// post/
+
+router.get('/post/getAll', mustAuthenticated, (req, res) => bindDataToRes(res,
+    Post.findAll()
+));
+router.get('/post/getById', mustAuthenticated, (req, res) => bindDataToRes(res,
+    Post.findByPk(req.query.id, {
+        include: {
+            model: Category,
+            as: 'categories'
+        }
+    })
+));
+router.post('/post/save', mustAuthenticated, async (req, res) => {
+    try {
+        const [post] = await Post.upsert({// values
+            id: req.body.id || null,
+            title: req.body.title,
+            body: req.body.body,
+            date: req.body.date
+        })
+        await post.setCategories(req.body.categories);
+        res.send(new OperationResults(true, '', post.id));
+
+    } catch (e) {
+        res.send(promiseHandler(e));
+    }
+});
+router.post('/post/deleteById', mustAuthenticated, (req, res) => bindDataToRes(res,
+    Post.build({ id: req.body.id }).destroy()
+));
+
+
+router.get('/post/getAllByFilter', mustAuthenticated, (req, res) => {
+    const filter = req.query.filter ? JSON.parse(req.query.filter) : {};
+    let categoryWhere = {},
+        postWhere = {};
+
+    // categories
+    if (filter.categories && Array.isArray(filter.categories) && filter.categories.length)
+        categoryWhere.id = {
+            [Op.in]: filter.categories
+        }
+
+    // startDate only
+    if (filter.startDate && !filter.endDate)
+        postWhere.date = {
+            [Op.eq]: filter.startDate
+        }
+
+    // startDate + endDate
+    if (filter.startDate && filter.endDate)
+        postWhere.date = {
+            [Op.between]: [filter.startDate, filter.endDate]
+        }
+
+    // search
+    if (filter.searchTerm)
+        postWhere[Op.or] = [
+            {
+                title: {
+                    [Op.substring]: filter.searchTerm
+                }
+            },
+            {
+                body: {
+                    [Op.substring]: filter.searchTerm
+                }
+            }
+        ];
+
+    bindDataToRes(res,
+        Post.findAll({
+            where: postWhere,
+            include: {
+                model: Category,
+                as: 'categories',
+                where: categoryWhere,
+                required: !!filter.categories.length
+            },
+            order: [
+                ['date', 'ASC']
+            ]
+        })
+    )
+});
+
+router.get('/post/getAllDates', mustAuthenticated, (req, res) => {
+    Post.findAll({
+        attributes: ['date'],
+        group: 'date'
+    })
+        .then(data => res.send(
+            new OperationResults(true, '', data.map(i => i.date))
+        ))
+        .catch(promiseHandler)
+});
 
 
 

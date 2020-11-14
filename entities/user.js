@@ -1,7 +1,7 @@
 const { sequelize, DataTypes } = require('db');
-const { Deferrable, Model } = require('sequelize');
+const { Model } = require('sequelize');
 const bcrypt = require('bcrypt');
-const { ROLE_ADMIN, ROLE_USER } = require('../client/src/auth/roles');
+const { ROLE_ADMIN, ROLE_USER } = require('../client/src/roles');
 
 
 class User extends Model {

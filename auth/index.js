@@ -8,7 +8,6 @@ const authenticate = async (session, user) => {
     if (!session || !user) throw new Error('Invalid session or user data');
 
     session.user = user;
-    return;
 }
 
 const logout = (session) => {
@@ -24,9 +23,11 @@ const logout = (session) => {
 
 const authorizeMiddlewareFactory = (roles) => {
     return (req, res, next) => {
+        //setTimeout(() => {
         // not authenticated at all
         if (!req.session || !req.session.user)
             return next(httpError(401));
+
 
         // authenticated + roles specified, but haven't permissions
         if (roles && !roles.concat(roles).includes(req.session.user.role)) {
@@ -37,6 +38,7 @@ const authorizeMiddlewareFactory = (roles) => {
         // OR
         // authenticated + roles matched
         next();
+        //}, 2000);
     }
 }
 

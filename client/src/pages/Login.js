@@ -1,17 +1,16 @@
 import React from 'react';
-import LoginForm from '../../components/LoginForm';
+import LoginForm from '../components/LoginForm';
+import Fullscreen from '../components/Fullscreen';
 import Container from '@material-ui/core/Container';
-import css from './Login.module.css';
 
 function Login() {
     return (
-        <div className={`d-flex align-items-center justify-content-center ${css.fullScreen}`}>
+        <Fullscreen>
             <Container maxWidth="xs">
                 <LoginForm />
             </Container>
-        </div>
+        </Fullscreen>
     );
 }
-
 
 export default Login;

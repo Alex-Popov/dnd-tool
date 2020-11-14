@@ -18,6 +18,7 @@
     "express-session": "^1.17.1",
     "helmet": "^4.1.0",
     "http-errors": "~1.6.3",
+    "lodash": "^4.17.20",
     "luxon": "^1.25.0",
     "pg": "^8.3.3",
     "pg-hstore": "^2.3.3",
